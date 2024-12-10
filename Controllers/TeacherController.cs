@@ -47,12 +47,67 @@ namespace mvc.Controllers
         {
             if (ModelState.IsValid)
             {
-                // teacher.Id = teachers.Max(e => e.Id) + 1;
+                teacher.Id = teachers.Max(e => e.Id) + 1;
                 teachers.Add(teacher);
                 return RedirectToAction(nameof(Index));
             }
+            // if(!ModelState.IsValid)
+            // {
+            //     return View();
+            // }
+            teachers.Add(teacher);
+
+            return RedirectToAction("Index");
+        }
+
+        public IActionResult Delete(int id)
+        {
+            var teacher = teachers.FirstOrDefault(t => t.Id == id);
+
+            teachers.Remove(teacher);
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        public IActionResult Edit(int id)
+        {
+            // Trouver l'enseignant par son ID
+            var teacher = teachers.FirstOrDefault(t => t.Id == id);
+            if (teacher == null)
+            {
+                return NotFound();
+            }
+
+            // Retourner la vue avec l'enseignant trouvé
             return View(teacher);
         }
+
+        [HttpPost]
+        public IActionResult Edit(Teacher teacher)
+        {
+            if (ModelState.IsValid)
+            {
+                // Rechercher l'enseignant existant
+                var existingTeacher = teachers.FirstOrDefault(t => t.Id == teacher.Id);
+                if (existingTeacher == null)
+                {
+                    return NotFound();
+                }
+
+                // Mettre à jour les informations
+                existingTeacher.Firstname = teacher.Firstname;
+                existingTeacher.Lastname = teacher.Lastname;
+                existingTeacher.Age = teacher.Age;
+
+                // Rediriger vers l'index
+                return RedirectToAction(nameof(Index));
+            }
+
+            // Si le modèle est invalide, rester sur la page de modification
+            return View(teacher);
+        }
+
+
     }
 }
 
