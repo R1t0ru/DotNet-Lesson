@@ -1,16 +1,29 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using mvc.Data;
+using mvc.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-var serverVersion = new MySqlServerVersion(new Version(11, 0, 2));
 //Gérer une base données avec l'application (Pour fonctionner avec EntityFramework)
 builder.Services.AddDbContext<ApplicationDbContext>(
-    options => options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"), serverVersion)
+    options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
+
+builder.Services.AddIdentity<Teacher, IdentityRole>(options =>
+{
+    options.SignIn.RequireConfirmedAccount = false;
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireNonAlphanumeric = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequiredLength = 8;
+
+    options.User.RequireUniqueEmail = true;
+}).AddEntityFrameworkStores<ApplicationDbContext>();
 
 var app = builder.Build();
 
@@ -24,6 +37,8 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
+app.UseAuthentication();
 
 app.UseRouting();
 
