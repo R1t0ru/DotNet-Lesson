@@ -104,5 +104,10 @@ namespace mvc.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
+        public IActionResult Register()
+        {
+            return View();
+        }
     }
 }
